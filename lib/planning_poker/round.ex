@@ -57,9 +57,14 @@ defmodule PlanningPoker.Round do
   end
 
   @impl true
-  def handle_call({:play_card, player_uuid, score}, _from, round) do
+  def handle_call({:play_card, player_uuid, score}, _from, %Round{status: :running} = round) do
     new_round = put_card_to_round(round, player_uuid, score)
     {:reply, :ok, new_round}
+  end
+
+  @impl true
+  def handle_call({:play_card, _player_uuid, _score}, _from, round) do
+    {:reply, :error, round}
   end
 
   @impl true

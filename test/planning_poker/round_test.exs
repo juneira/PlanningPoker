@@ -12,6 +12,10 @@ defmodule PlanningPoker.RoundTest do
   end
 
   test "plays cards", %{round: round} do
+    assert PlanningPoker.Round.play_card(round, "test_player_one", 1) == :error
+
+    assert PlanningPoker.Round.start(round) == :ok
+
     assert PlanningPoker.Round.play_card(round, "test_player_one", 1) == :ok
     assert PlanningPoker.Round.show_cards(round) == %{"test_player_one" => 1}
 
