@@ -49,6 +49,10 @@ defmodule PlanningPoker.Round do
     GenServer.call(server, :show_cards)
   end
 
+  def show_round(server) do
+    GenServer.call(server, :show_round)
+  end
+
   ## SERVER
 
   @impl true
@@ -86,6 +90,11 @@ defmodule PlanningPoker.Round do
   @impl true
   def handle_call(:show_cards, _from, round) do
     {:reply, round.cards, round}
+  end
+
+  @impl true
+  def handle_call(:show_round, _from, round) do
+    {:reply, round, round}
   end
 
   defp put_card_to_round(round, player_uuid, score) do

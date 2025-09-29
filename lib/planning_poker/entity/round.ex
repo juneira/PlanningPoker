@@ -36,10 +36,25 @@ defmodule PlanningPoker.Entity.Round do
   end
 
   def change_status(%__MODULE__{status: :running} = round, :finished) do
-    {:ok, %{round | status: :finished, finished_at: DateTime.utc_now()}}
+    finished_data = %{
+      status: :finished,
+      finished_at: DateTime.utc_now(),
+      score: calculate_score(round.cards)
+    }
+
+    {:ok, Map.merge(round, finished_data)}
   end
 
   def change_status(%__MODULE__{}, _new_status) do
     {:error, :invalid_status}
+  end
+
+  defp calculate_score(cards) do
+    if map_size(cards) == 0 do
+      0
+    else
+      total = Enum.reduce(cards, 0, fn {_player_uuid, score}, acc -> acc + score end)
+      total / map_size(cards)
+    end
   end
 end
