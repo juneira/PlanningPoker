@@ -15,7 +15,7 @@ defmodule PlanningPoker.Entity.Round do
   @type t :: %__MODULE__{
           uuid: String.t(),
           task_description: String.t(),
-          cards: list() | nil,
+          cards: map() | nil,
           score: number() | nil,
           status: status(),
           created_at: DateTime.t(),
