@@ -5,7 +5,6 @@ defmodule PlanningPoker.Entity.Round do
     :game,
     :task_description,
     :cards,
-    # Valid statuses - [:waiting, :running, :finished]
     :score,
     :status,
     :created_at,
@@ -40,7 +39,6 @@ defmodule PlanningPoker.Entity.Round do
     {:ok, %{round | status: :finished, finished_at: DateTime.utc_now()}}
   end
 
-  # Qualquer outra transição é inválida
   def change_status(%__MODULE__{}, _new_status) do
     {:error, :invalid_status}
   end
