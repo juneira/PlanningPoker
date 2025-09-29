@@ -14,6 +14,7 @@ defmodule PlanningPoker.Round do
       game: Keyword.fetch!(opts, :game),
       cards: %{},
       task_description: Keyword.fetch!(opts, :task_description),
+      status: :waiting,
       created_at: DateTime.utc_now()
     }
 
@@ -25,6 +26,20 @@ defmodule PlanningPoker.Round do
   """
   def play_card(server, player_uuid, score) do
     GenServer.call(server, {:play_card, player_uuid, score})
+  end
+
+  @doc """
+  Starts the round and wait for cards
+  """
+  def start(server) do
+    GenServer.call(server, :start)
+  end
+
+  @doc """
+  Finishes the round
+  """
+  def finish(server) do
+    GenServer.call(server, :finish)
   end
 
   @doc """
@@ -45,6 +60,22 @@ defmodule PlanningPoker.Round do
   def handle_call({:play_card, player_uuid, score}, _from, round) do
     new_round = put_card_to_round(round, player_uuid, score)
     {:reply, :ok, new_round}
+  end
+
+  @impl true
+  def handle_call(:start, _from, round) do
+    case Round.change_status(round, :running) do
+      {:ok, new_round} -> {:reply, :ok, new_round}
+      {:error, :invalid_status} -> {:reply, :error, round}
+    end
+  end
+
+  @impl true
+  def handle_call(:finish, _from, round) do
+    case Round.change_status(round, :finished) do
+      {:ok, new_round} -> {:reply, :ok, new_round}
+      {:error, :invalid_status} -> {:reply, :error, round}
+    end
   end
 
   @impl true

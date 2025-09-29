@@ -32,4 +32,11 @@ defmodule PlanningPoker.RoundTest do
              "test_player_three" => 3
            }
   end
+
+  test "change status", %{round: round} do
+    assert PlanningPoker.Round.start(round) == :ok
+    assert PlanningPoker.Round.start(round) == :error
+    assert PlanningPoker.Round.finish(round) == :ok
+    assert PlanningPoker.Round.finish(round) == :error
+  end
 end

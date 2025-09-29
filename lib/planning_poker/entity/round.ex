@@ -1,14 +1,47 @@
 defmodule PlanningPoker.Entity.Round do
-  @enforce_keys [:uuid, :game, :task_description, :created_at]
+  @enforce_keys [:uuid, :game, :task_description, :status, :created_at]
   defstruct [
     :uuid,
     :game,
     :task_description,
     :cards,
+    # Valid statuses - [:waiting, :running, :finished]
     :score,
     :status,
     :created_at,
     :started_at,
     :finished_at
   ]
+
+  @type status :: :waiting | :running | :finished
+  @type t :: %__MODULE__{
+          uuid: String.t(),
+          game: PlanningPoker.Entity.Game.t(),
+          task_description: String.t(),
+          cards: list() | nil,
+          score: number() | nil,
+          status: status(),
+          created_at: DateTime.t(),
+          started_at: DateTime.t() | nil,
+          finished_at: DateTime.t() | nil
+        }
+
+  @doc """
+  Changes the status of the round, ensuring valid transitions.
+  """
+  @spec change_status(t(), status()) :: {:ok, t()} | {:error, :invalid_status}
+  def change_status(round, state)
+
+  def change_status(%__MODULE__{status: :waiting} = round, :running) do
+    {:ok, %{round | status: :running, started_at: DateTime.utc_now()}}
+  end
+
+  def change_status(%__MODULE__{status: :running} = round, :finished) do
+    {:ok, %{round | status: :finished, finished_at: DateTime.utc_now()}}
+  end
+
+  # Qualquer outra transição é inválida
+  def change_status(%__MODULE__{}, _new_status) do
+    {:error, :invalid_status}
+  end
 end
