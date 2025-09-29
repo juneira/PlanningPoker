@@ -1,8 +1,7 @@
 defmodule PlanningPoker.Entity.Round do
-  @enforce_keys [:uuid, :game, :task_description, :status, :created_at]
+  @enforce_keys [:uuid, :task_description, :status, :created_at]
   defstruct [
     :uuid,
-    :game,
     :task_description,
     :cards,
     :score,
@@ -15,7 +14,6 @@ defmodule PlanningPoker.Entity.Round do
   @type status :: :waiting | :running | :finished
   @type t :: %__MODULE__{
           uuid: String.t(),
-          game: PlanningPoker.Entity.Game.t(),
           task_description: String.t(),
           cards: list() | nil,
           score: number() | nil,

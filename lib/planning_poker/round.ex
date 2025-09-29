@@ -10,8 +10,7 @@ defmodule PlanningPoker.Round do
   """
   def start_link(opts) do
     round = %Round{
-      uuid: UUID.uuid4(),
-      game: Keyword.fetch!(opts, :game),
+      uuid: Keyword.fetch!(opts, :uuid),
       cards: %{},
       task_description: Keyword.fetch!(opts, :task_description),
       status: :waiting,

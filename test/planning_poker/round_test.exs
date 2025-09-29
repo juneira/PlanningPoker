@@ -2,11 +2,12 @@ defmodule PlanningPoker.RoundTest do
   use ExUnit.Case, async: true
 
   setup do
-    game = %PlanningPoker.Entity.Game{uuid: "uuid", owner: "any"}
     task_description = "Any Description"
 
     round =
-      start_supervised!({PlanningPoker.Round, [game: game, task_description: task_description]})
+      start_supervised!(
+        {PlanningPoker.Round, [uuid: UUID.uuid4(), task_description: task_description]}
+      )
 
     %{round: round}
   end
@@ -39,7 +40,6 @@ defmodule PlanningPoker.RoundTest do
     assert PlanningPoker.Round.finish(round) == :ok
 
     round_data = PlanningPoker.Round.show_round(round)
-    assert round_data.uuid != nil
     assert round_data.score == 7 / 3
     assert round_data.status == :finished
     assert round_data.finished_at != nil
