@@ -1,21 +1,19 @@
 # PlanningPoker
 
-**TODO: Add description**
+## Architecture
 
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `planning_poker` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:planning_poker, "~> 0.1.0"}
-  ]
-end
+```sh
+Application Supervisor
+├── GameManager (DynamicSupervisor)
+│   ├── Game1 Supervisor
+│   │   ├── GameServer (GenServer)
+│   │   └── RoundManager Supervisor (DynamicSupervisor)
+│   │       ├── Round1 (GenServer)
+│   │       ├── Round2 (GenServer)
+│   │       └── Round3 (GenServer)
+│   └── Game2 Supervisor
+│       ├── GameServer (GenServer)
+│       └── RoundManager Supervisor (DynamicSupervisor)
+│           ├── Round1 (GenServer)
+│           └── Round2 (GenServer)
 ```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/planning_poker>.
-
