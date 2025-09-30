@@ -1,11 +1,11 @@
 defmodule PlanningPoker.Entity.Game do
-  @enforce_keys [:uuid, :title, :owner, :rounds, :players, :created_at]
+  @enforce_keys [:uuid, :title, :owner, :rounds, :player_uuids, :created_at]
   defstruct [
     :uuid,
     :title,
     :owner,
     :rounds,
-    :players,
+    :player_uuids,
     :created_at,
     :finished_at
   ]
@@ -14,7 +14,7 @@ defmodule PlanningPoker.Entity.Game do
           uuid: String.t(),
           owner: PlanningPoker.Entity.Player.t(),
           rounds: map() | nil,
-          players: list() | nil,
+          player_uuids: map() | nil,
           created_at: DateTime.t() | nil,
           finished_at: DateTime.t() | nil
         }

@@ -18,7 +18,7 @@ defmodule PlanningPoker.Game do
       title: title,
       owner: owner,
       rounds: %{},
-      players: [owner],
+      player_uuids: MapSet.new([owner.uuid]),
       created_at: DateTime.utc_now()
     }
 
@@ -37,6 +37,27 @@ defmodule PlanningPoker.Game do
   """
   def lookup_round(server, round_uuid) do
     GenServer.call(server, {:lookup, round_uuid})
+  end
+
+  @doc """
+  Adds a player UUID to the game if not already present.
+  """
+  def add_player(server, player_uuid) do
+    GenServer.call(server, {:add_player, player_uuid})
+  end
+
+  @doc """
+  Removes a player UUID from the game.
+  """
+  def remove_player(server, player_uuid) do
+    GenServer.call(server, {:remove_player, player_uuid})
+  end
+
+  @doc """
+  Gets all player UUIDs in the game.
+  """
+  def get_players(server) do
+    GenServer.call(server, :get_players)
   end
 
   ## SERVER
@@ -61,6 +82,30 @@ defmodule PlanningPoker.Game do
       {:ok, pid} -> {:reply, pid, game}
       :error -> {:reply, {:error, :not_found}, game}
     end
+  end
+
+  @impl true
+  def handle_call({:add_player, player_uuid}, _from, %Game{} = game) do
+    if MapSet.member?(game.player_uuids, player_uuid) do
+      {:reply, {:error, :player_already_exists}, game}
+    else
+      new_players = MapSet.put(game.player_uuids, player_uuid)
+      new_game = %{game | player_uuids: new_players}
+      {:reply, :ok, new_game}
+    end
+  end
+
+  @impl true
+  def handle_call({:remove_player, player_uuid}, _from, %Game{} = game) do
+    new_players = MapSet.delete(game.player_uuids, player_uuid)
+    new_game = %{game | player_uuids: new_players}
+    {:reply, :ok, new_game}
+  end
+
+  @impl true
+  def handle_call(:get_players, _from, %Game{} = game) do
+    players_list = MapSet.to_list(game.player_uuids)
+    {:reply, players_list, game}
   end
 
   defp create_and_add_round(game, task_description) do

@@ -27,4 +27,26 @@ defmodule PlanningPoker.GameTest do
     assert PlanningPoker.Round.show_round(pid_2).task_description == "Task 2"
     assert PlanningPoker.Round.show_round(pid_3).task_description == "Task 3"
   end
+
+  test "adds and removes players", %{game: game} do
+    player1_uuid = "player1_uuid"
+    player2_uuid = "player2_uuid"
+    player3_uuid = "player3_uuid"
+
+    assert :ok = PlanningPoker.Game.add_player(game, player1_uuid)
+    assert :ok = PlanningPoker.Game.add_player(game, player2_uuid)
+    assert :ok = PlanningPoker.Game.add_player(game, player3_uuid)
+    assert {:error, :player_already_exists} = PlanningPoker.Game.add_player(game, player2_uuid)
+
+    players = PlanningPoker.Game.get_players(game)
+
+    assert Enum.sort(players) ==
+             Enum.sort([player1_uuid, player2_uuid, player3_uuid, "owner_uuid"])
+
+    assert :ok = PlanningPoker.Game.remove_player(game, player2_uuid)
+    players_after_removal = PlanningPoker.Game.get_players(game)
+
+    assert Enum.sort(players_after_removal) ==
+             Enum.sort([player1_uuid, player3_uuid, "owner_uuid"])
+  end
 end
