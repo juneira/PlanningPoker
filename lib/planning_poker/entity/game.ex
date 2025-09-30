@@ -6,7 +6,6 @@ defmodule PlanningPoker.Entity.Game do
     :owner,
     :rounds,
     :players,
-    :status,
     :created_at,
     :finished_at
   ]
@@ -16,7 +15,6 @@ defmodule PlanningPoker.Entity.Game do
           owner: PlanningPoker.Entity.Player.t(),
           rounds: map() | nil,
           players: list() | nil,
-          status: atom() | nil,
           created_at: DateTime.t() | nil,
           finished_at: DateTime.t() | nil
         }

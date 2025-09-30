@@ -15,6 +15,8 @@ defmodule PlanningPoker.GameTest do
     assert {:ok, round_uuid_1} = PlanningPoker.Game.create_round(game, "Task 1")
     assert {:ok, round_uuid_2} = PlanningPoker.Game.create_round(game, "Task 2")
     assert {:ok, round_uuid_3} = PlanningPoker.Game.create_round(game, "Task 3")
+    assert {:error, :invalid_task_description} = PlanningPoker.Game.create_round(game, nil)
+    assert {:error, :invalid_task_description} = PlanningPoker.Game.create_round(game, "")
 
     assert {:ok, pid_1} = PlanningPoker.Game.lookup_round(game, round_uuid_1)
     assert {:ok, pid_2} = PlanningPoker.Game.lookup_round(game, round_uuid_2)

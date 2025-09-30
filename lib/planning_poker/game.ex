@@ -48,17 +48,11 @@ defmodule PlanningPoker.Game do
 
   @impl true
   def handle_call({:create_round, task_description}, _from, %Game{} = game) do
-    round_uuid = UUID.uuid4()
-
-    pid =
-      PlanningPoker.Round.start_link(
-        uuid: round_uuid,
-        task_description: task_description
-      )
-
-    new_game = put_round_to_map(game, round_uuid, pid)
-
-    {:reply, {:ok, round_uuid}, new_game}
+    if task_description == nil or task_description == "" do
+      {:reply, {:error, :invalid_task_description}, game}
+    else
+      create_and_add_round(game, task_description)
+    end
   end
 
   @impl true
@@ -69,7 +63,21 @@ defmodule PlanningPoker.Game do
     end
   end
 
-  defp put_round_to_map(game, round_uuid, pid) do
+  defp create_and_add_round(game, task_description) do
+    round_uuid = UUID.uuid4()
+
+    pid =
+      PlanningPoker.Round.start_link(
+        uuid: round_uuid,
+        task_description: task_description
+      )
+
+    new_game = put_round_to_game(game, round_uuid, pid)
+
+    {:reply, {:ok, round_uuid}, new_game}
+  end
+
+  defp put_round_to_game(game, round_uuid, pid) do
     %{game | rounds: Map.put(game.rounds, round_uuid, pid)}
   end
 end
