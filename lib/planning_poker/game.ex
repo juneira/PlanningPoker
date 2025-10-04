@@ -74,6 +74,20 @@ defmodule PlanningPoker.Game do
     GenServer.call(server, :get_players)
   end
 
+  @doc """
+  Starts a round in the game.
+  """
+  def start_round(server, owner_uuid, round_uuid) do
+    GenServer.call(server, {:start_round, owner_uuid, round_uuid})
+  end
+
+  @doc """
+  Play a card on round in the game.
+  """
+  def play_card(server, round_uuid, player_uuid, score) do
+    GenServer.call(server, {:play_card, round_uuid, player_uuid, score})
+  end
+
   ## SERVER
 
   @impl true
@@ -93,7 +107,7 @@ defmodule PlanningPoker.Game do
   @impl true
   def handle_call({:lookup, round_uuid}, _from, %Game{} = game) do
     case Map.fetch(game.rounds, round_uuid) do
-      {:ok, pid} -> {:reply, pid, game}
+      {:ok, pid} -> {:reply, {:ok, pid}, game}
       :error -> {:reply, {:error, :not_found}, game}
     end
   end
@@ -122,10 +136,50 @@ defmodule PlanningPoker.Game do
     {:reply, players_list, game}
   end
 
+  @impl true
+  def handle_call({:start_round, owner_uuid, round_uuid}, _from, %Game{} = game)
+      when game.owner_uuid == owner_uuid do
+    case Map.fetch(game.rounds, round_uuid) do
+      {:ok, round_pid} ->
+        case PlanningPoker.Round.start(round_pid) do
+          :ok -> {:reply, :ok, game}
+          {:error, reason} -> {:reply, {:error, reason}, game}
+        end
+
+      :error ->
+        {:reply, {:error, :not_found}, game}
+    end
+  end
+
+  @impl true
+  def handle_call({:start_round, _owner_uuid, _round_uuid}, _from, %Game{} = game) do
+    {:reply, {:error, :not_owner}, game}
+  end
+
+  @impl true
+  def handle_call({:play_card, round_uuid, player_uuid, score}, _from, %Game{} = game) do
+    if MapSet.member?(game.player_uuids, player_uuid) do
+      play_card_in_round(game, round_uuid, player_uuid, score)
+    else
+      {:reply, {:error, :player_not_in_game}, game}
+    end
+  end
+
+  defp play_card_in_round(game, round_uuid, player_uuid, score) do
+    case Map.fetch(game.rounds, round_uuid) do
+      {:ok, round_pid} ->
+        PlanningPoker.Round.play_card(round_pid, player_uuid, score)
+        {:reply, :ok, game}
+
+      :error ->
+        {:reply, {:error, :not_found}, game}
+    end
+  end
+
   defp create_and_add_round(game, task_description) do
     round_uuid = UUID.uuid4()
 
-    pid =
+    {:ok, pid} =
       PlanningPoker.Round.start_link(
         uuid: round_uuid,
         task_description: task_description

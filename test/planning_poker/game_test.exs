@@ -51,4 +51,35 @@ defmodule PlanningPoker.GameTest do
     assert Enum.sort(players_after_removal) ==
              Enum.sort([player1_uuid, player3_uuid, "owner_uuid"])
   end
+
+  test "plays cards in a round", %{game: game} do
+    player1_uuid = "player1_uuid"
+    player2_uuid = "player2_uuid"
+    player3_uuid = "player3_uuid"
+
+    :ok = PlanningPoker.Game.add_player(game, player1_uuid)
+    :ok = PlanningPoker.Game.add_player(game, player2_uuid)
+    :ok = PlanningPoker.Game.add_player(game, player3_uuid)
+
+    assert {:ok, round_uuid} = PlanningPoker.Game.create_round(game, "Task for voting")
+    assert {:ok, round_pid} = PlanningPoker.Game.lookup_round(game, round_uuid)
+
+    assert :ok = PlanningPoker.Game.start_round(game, "owner_uuid", round_uuid)
+
+    assert {:error, :player_not_in_game} =
+             PlanningPoker.Game.play_card(game, round_uuid, "unknown_player", 5)
+
+    assert PlanningPoker.Game.play_card(game, round_uuid, player1_uuid, 3) == :ok
+    assert PlanningPoker.Game.play_card(game, round_uuid, player2_uuid, 5) == :ok
+    assert PlanningPoker.Game.play_card(game, round_uuid, player3_uuid, 8) == :ok
+
+    assert PlanningPoker.Round.show_cards(round_pid) == %{
+             player1_uuid => 3,
+             player2_uuid => 5,
+             player3_uuid => 8
+           }
+
+    assert :ok = PlanningPoker.Round.finish(round_pid)
+    assert PlanningPoker.Round.show_round(round_pid).status == :finished
+  end
 end
