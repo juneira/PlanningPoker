@@ -10,19 +10,33 @@ defmodule PlanningPoker.Game do
   """
   def start_link(opts) do
     uuid = Keyword.fetch!(opts, :uuid)
-    owner = Keyword.fetch!(opts, :owner)
+    owner_uuid = Keyword.fetch!(opts, :owner_uuid)
     title = Keyword.fetch!(opts, :title)
 
     game = %Game{
       uuid: uuid,
       title: title,
-      owner: owner,
       rounds: %{},
-      player_uuids: MapSet.new([owner.uuid]),
+      owner_uuid: owner_uuid,
+      player_uuids: MapSet.new([owner_uuid]),
       created_at: DateTime.utc_now()
     }
 
-    GenServer.start_link(__MODULE__, game, name: opts[:name])
+    GenServer.start_link(
+      __MODULE__,
+      game,
+      name: {:via, Registry, {PlanningPoker.GameRegistry, uuid}}
+    )
+  end
+
+  @doc """
+  Finds a game by its UUID and returns its PID if found.
+  """
+  def find_game(game_uuid) do
+    case Registry.lookup(PlanningPoker.GameRegistry, game_uuid) do
+      [{pid, _value}] -> {:ok, pid}
+      [] -> {:error, :not_found}
+    end
   end
 
   @doc """

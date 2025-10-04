@@ -2,11 +2,13 @@ defmodule PlanningPoker.GameTest do
   use ExUnit.Case, async: true
 
   setup do
-    owner = %PlanningPoker.Entity.Player{uuid: "owner_uuid", name: "Owner"}
+    owner_uuid = "owner_uuid"
     title = "Game Title"
 
     game =
-      start_supervised!({PlanningPoker.Game, [uuid: UUID.uuid4(), owner: owner, title: title]})
+      start_supervised!(
+        {PlanningPoker.Game, [uuid: UUID.uuid4(), owner_uuid: owner_uuid, title: title]}
+      )
 
     %{game: game}
   end

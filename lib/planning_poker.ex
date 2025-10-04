@@ -1,18 +1,12 @@
 defmodule PlanningPoker do
-  @moduledoc """
-  Documentation for `PlanningPoker`.
-  """
+  use Application
 
-  @doc """
-  Hello world.
+  def start(_type, _args) do
+    children = [
+      {Registry, keys: :unique, name: PlanningPoker.GameRegistry}
+    ]
 
-  ## Examples
-
-      iex> PlanningPoker.hello()
-      :world
-
-  """
-  def hello do
-    :world
+    opts = [strategy: :one_for_one, name: PlanningPoker.Supervisor]
+    Supervisor.start_link(children, opts)
   end
 end
