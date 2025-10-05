@@ -24,29 +24,36 @@ defmodule PlanningPoker.Player do
   @doc """
   Creates a new game with the given a title.
   """
-  def create_game(player, title) do
-    GenServer.call(player, {:create_game, title})
+  def create_game(server, title) do
+    GenServer.call(server, {:create_game, title})
   end
 
   @doc """
   Lists all games owned by the player.
   """
-  def list_owned_games(player) do
-    GenServer.call(player, :list_owned_games)
+  def list_owned_games(server) do
+    GenServer.call(server, :list_owned_games)
   end
 
   @doc """
   Enters a game as a player.
   """
-  def enter_game(player, game_uuid) do
-    GenServer.call(player, {:enter_game, game_uuid})
+  def enter_game(server, game_uuid) do
+    GenServer.call(server, {:enter_game, game_uuid})
   end
 
   @doc """
   Lists all games the player has entered.
   """
-  def list_entered_games(player) do
-    GenServer.call(player, :list_entered_games)
+  def list_entered_games(server) do
+    GenServer.call(server, :list_entered_games)
+  end
+
+  @doc """
+  Plays a card in a specific round of a game.
+  """
+  def play_card(server, game_uuid, round_uuid, card) do
+    GenServer.call(server, {:play_card, game_uuid, round_uuid, card})
   end
 
   ## SERVER
@@ -93,5 +100,19 @@ defmodule PlanningPoker.Player do
   @impl true
   def handle_call(:list_entered_games, _from, %Player{} = player) do
     {:reply, MapSet.to_list(player.player_games_uuids), player}
+  end
+
+  @impl true
+  def handle_call({:play_card, game_uuid, round_uuid, card}, _from, %Player{} = player) do
+    case PlanningPoker.Game.find_game(game_uuid) do
+      {:ok, game_pid} ->
+        case PlanningPoker.Game.play_card(game_pid, round_uuid, player.uuid, card) do
+          :ok -> {:reply, :ok, player}
+          {:error, reason} -> {:reply, {:error, reason}, player}
+        end
+
+      {:error, :not_found} ->
+        {:reply, {:error, :game_not_found}, player}
+    end
   end
 end
