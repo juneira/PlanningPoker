@@ -18,7 +18,18 @@ defmodule PlanningPoker.Player do
       player_games_uuids: MapSet.new()
     }
 
-    GenServer.start_link(__MODULE__, player, name: opts[:name])
+    GenServer.start_link(
+      __MODULE__,
+      player,
+      name: {:via, Registry, {PlanningPoker.PlayerRegistry, uuid}}
+    )
+  end
+
+  @doc """
+  Looks up a player by their server PID.
+  """
+  def lookup_player(server) do
+    GenServer.call(server, :lookup)
   end
 
   @doc """
@@ -61,6 +72,11 @@ defmodule PlanningPoker.Player do
   @impl true
   def init(player) do
     {:ok, player}
+  end
+
+  @impl true
+  def handle_call(:lookup, _from, %Player{} = player) do
+    {:reply, {:ok, player}, player}
   end
 
   @impl true
