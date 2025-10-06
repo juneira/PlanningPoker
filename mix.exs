@@ -22,7 +22,9 @@ defmodule PlanningPoker.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:uuid, "~> 1.1"}
+      {:uuid, "~> 1.1"},
+      {:plug_cowboy, "~> 2.0"},
+      {:plug, "~> 1.18"}
     ]
   end
 end
