@@ -12,27 +12,39 @@ defmodule PlanningPoker.Router.Player do
       {:ok, %{"name" => name}} ->
         case PlanningPoker.Controller.Player.create_player(name) do
           {:ok, player} ->
-            send_resp(conn, 201, Jason.encode!(%{uuid: player.uuid, name: player.name}))
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(201, Jason.encode!(%{uuid: player.uuid, name: player.name}))
 
           {:error, reason} ->
-            send_resp(conn, 422, Jason.encode!(%{error: reason}))
+            conn
+            |> put_resp_content_type("application/json")
+            |> send_resp(422, Jason.encode!(%{error: reason}))
         end
 
       _ ->
-        send_resp(conn, 422, Jason.encode!(%{error: "Invalid data"}))
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(422, Jason.encode!(%{error: "Invalid data"}))
     end
   end
 
   get "/:uuid" do
     case PlanningPoker.Controller.Player.lookup_player(uuid) do
       {:ok, player} ->
-        send_resp(conn, 200, Jason.encode!(%{uuid: player.uuid, name: player.name}))
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(200, Jason.encode!(%{uuid: player.uuid, name: player.name}))
 
       {:error, :player_not_found} ->
-        send_resp(conn, 404, Jason.encode!(%{error: "Player not found"}))
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(404, Jason.encode!(%{error: "Player not found"}))
 
       {:error, reason} ->
-        send_resp(conn, 422, Jason.encode!(%{error: reason}))
+        conn
+        |> put_resp_content_type("application/json")
+        |> send_resp(422, Jason.encode!(%{error: reason}))
     end
   end
 end
