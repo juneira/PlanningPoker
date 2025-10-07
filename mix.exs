@@ -24,7 +24,8 @@ defmodule PlanningPoker.MixProject do
     [
       {:uuid, "~> 1.1"},
       {:plug_cowboy, "~> 2.0"},
-      {:plug, "~> 1.18"}
+      {:plug, "~> 1.18"},
+      {:jason, "~> 1.4"}
     ]
   end
 end

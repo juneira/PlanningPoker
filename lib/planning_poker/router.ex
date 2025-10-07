@@ -5,7 +5,9 @@ defmodule PlanningPoker.Router do
   plug(:match)
   plug(:dispatch)
 
-  get "/" do
-    send_resp(conn, 200, "Welcome to Planning Poker!")
+  forward("/api/players", to: PlanningPoker.Router.Player)
+
+  match _ do
+    send_resp(conn, 404, Jason.encode!(%{error: "Not found"}))
   end
 end
