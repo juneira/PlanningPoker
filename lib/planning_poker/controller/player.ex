@@ -14,8 +14,8 @@ defmodule PlanningPoker.Controller.Player do
   end
 
   def lookup_player(uuid) do
-    case Registry.lookup(PlanningPoker.PlayerRegistry, uuid) do
-      [{pid, _value}] ->
+    case get_player_pid(uuid) do
+      {:ok, pid} ->
         case PlanningPoker.Player.lookup_player(pid) do
           {:ok, player} ->
             {:ok, player}
@@ -23,6 +23,16 @@ defmodule PlanningPoker.Controller.Player do
           {:error, reason} ->
             {:error, reason}
         end
+
+      {:error, reason} ->
+        {:error, reason}
+    end
+  end
+
+  def get_player_pid(uuid) do
+    case Registry.lookup(PlanningPoker.PlayerRegistry, uuid) do
+      [{pid, _value}] ->
+        {:ok, pid}
 
       [] ->
         {:error, :player_not_found}

@@ -40,6 +40,13 @@ defmodule PlanningPoker.Game do
   end
 
   @doc """
+  Shows the current state of the game.
+  """
+  def show(server) do
+    GenServer.call(server, :show)
+  end
+
+  @doc """
   Creates a new round in the game with the given task description.
   """
   def create_round(server, task_description) do
@@ -93,6 +100,11 @@ defmodule PlanningPoker.Game do
   @impl true
   def init(%Game{} = game) do
     {:ok, game}
+  end
+
+  @impl true
+  def handle_call(:show, _from, %Game{} = game) do
+    {:reply, game, game}
   end
 
   @impl true
